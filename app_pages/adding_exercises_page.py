@@ -1,5 +1,10 @@
+import datetime
+
 import streamlit as st
 import sql
+import telebot
+from messages import messages
+import random
 
 users = sql.Users.get_list()
 exercises = sql.Exercises.get_list_works()
@@ -41,9 +46,19 @@ def delete_exercise(user, date, exercises_lst):
         st.rerun()
 
 
-with st.container(border=True):
-    if st.button("Добавить упражнение"):
+with st.container(border=True, width=230):
+    if st.button("Добавить упражнение", width=200):
         add_exercise(users_selector, start_date)
-    if st.button("Удалить упражнение"):
+    if st.button("Удалить упражнение", width=200):
         exercises_list = list(plan["exercise_name"])
         delete_exercise(users_selector, start_date,exercises_list)
+    if st.button("Отправить уведомление", width=200):
+        token = st.secrets["tg_bot"]["token"]
+        bot = telebot.TeleBot(token)
+        tg_id = sql.Users.get_tg_id(users_selector)
+        formatted = start_date.strftime("%d.%m.%y")
+        first_part = random.choice(messages)
+        second_part = f"\nПлан тренировки на {formatted} ждет тебя 💪\nМожешь смотреть 👌"
+        message_text = first_part + second_part
+        bot.send_message(tg_id, message_text)
+        st.toast("Функция\n<Пнуть жиробасика>\nуспешно выполнена")

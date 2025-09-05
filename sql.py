@@ -53,6 +53,12 @@ class Users(Base):
             user = session.query(cls).filter(cls.user_tg_id == tg_id).first()
             return user.username if user else None
 
+    @classmethod
+    def get_tg_id(cls, username):
+        with session_scope() as session:
+            user = session.query(cls).filter(cls.username == username).first()
+            return user.user_tg_id if user else None
+
 
 class Plan(Base):
     __tablename__ = "plan"
